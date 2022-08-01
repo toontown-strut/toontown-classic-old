@@ -3,13 +3,13 @@ from direct.distributed.ClockDelta import *
 from direct.distributed import DistributedObject
 from toontown.toonbase import ToontownGlobals
 from direct.task import Task
+from direct.interval.LerpInterval import LerpPosInterval
 SPIN_RATE = 1.25
 
 class DistributedDGFlower(DistributedObject.DistributedObject):
 
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)
-        self.flowerRaiseSeq = None
 
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
@@ -34,9 +34,7 @@ class DistributedDGFlower(DistributedObject.DistributedObject):
 
     def disable(self):
         DistributedObject.DistributedObject.disable(self)
-        if self.flowerRaiseSeq:
-            self.flowerRaiseSeq.finish()
-            self.flowerRaiseSeq = None
+        taskMgr.remove(self.taskName('DG-flowerRaise'))
         taskMgr.remove(self.taskName('DG-flowerSpin'))
         self.ignore('enterbigFlowerTrigger')
         self.ignore('exitbigFlowerTrigger')
@@ -54,11 +52,20 @@ class DistributedDGFlower(DistributedObject.DistributedObject):
 
     def __flowerEnter(self, collisionEntry):
         self.sendUpdate('avatarEnter', [])
+        self.bigFlowerZ = self.bigFlower.getZ()
+        self.LerpFlowerUp = LerpPosInterval(nodePath=self.bigFlower,
+				                            duration=0.5,
+                                            pos=Point3(1.39, 92.91, self.bigFlowerZ + 2.0),
+                                            )
+
+        self.LerpFlowerUp.start()
 
     def __flowerExit(self, collisionEntry):
         self.sendUpdate('avatarExit', [])
+        self.raisedbigFlowerZ = self.bigFlower.getZ()
+        self.LerpFlowerDown = LerpPosInterval(nodePath=self.bigFlower,
+			                              duration=0.5,
+                                          pos=Point3(1.39, 92.91, self.raisedbigFlowerZ - 2.0),
+				             )
+        self.LerpFlowerDown.start()
 
-    def setHeight(self, newHeight):
-        pos = self.bigFlower.getPos()
-        self.flowerRaiseSeq = self.bigFlower.posInterval(0.5, (pos[0], pos[1], newHeight), name=self.taskName('DG-flowerRaise'))
-        self.flowerRaiseSeq.start()
