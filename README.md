@@ -1,4 +1,4 @@
-# Classic Toontown
+# Classic Toontown *Old*
 Goal: To make a stable-ish source port of Toontown by combining multiple Python3 source ports and contributions. Credits are below.
 
 ## Credits
