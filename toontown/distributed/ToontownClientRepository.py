@@ -292,6 +292,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.avCreate.load()
         self.avCreate.enter()
         self.accept('makeAToonComplete', self.__handleMakeAToon, [avList, index])
+        self.accept('nameShopCreateAvatar', self.sendCreateAvatarMsg)
         self.accept('nameShopPost', self.relayMessage)
         return
 
